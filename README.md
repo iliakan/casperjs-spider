@@ -1,3 +1,5 @@
+### The fork adds support for broken img[src]/iframe[src], also logs errors with referencing pages in file.
+
 *Fully refactored and tested with Casper 1.0.x and 1.1.x beta.
 Please note the compatibility change for casperjs/phantomjs in their docs*
 
