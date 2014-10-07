@@ -37,7 +37,7 @@
   // ##################  Initializing Vars  #################
 
   // URL arrays
-  var visitedUrls = [], pendingUrls = [], skippedUrls = [];
+  var visitedUrls = [], pendingUrls = [], skippedUrls = [], refUrls = {};
 
   // required and skipped values
   var requiredValues = casper.cli.get('required-values') || config.requiredValues,
@@ -105,6 +105,14 @@
         __utils__.findAll('a[href]').forEach(function(e) {
           links.push(e.getAttribute('href'));
         });
+        __utils__.findAll('img,iframe').forEach(function(e) {
+          links.push(e.getAttribute('src'));
+        });
+
+        links = links.map(function(url) {
+          return url.replace(/#.*$/, '');
+        });
+
         return links;
       });
 
@@ -119,6 +127,10 @@
         // Get new url
         var newUrl = helpers.absoluteUri(baseUrl, link);
 
+        if (!refUrls[newUrl]) {
+          refUrls[newUrl] = [];
+        }
+        refUrls[newUrl].push(url);
         // If url is not visited, pending or skipped:
         if (pendingUrls.indexOf(newUrl) === -1 &&
             visitedUrls.indexOf(newUrl) === -1 &&
@@ -212,6 +224,16 @@
     }
 
     dataObj.logFile = filename;
+
+    dataObj.errUrls = dataObj.links.filter(function(link) {
+      return link.status >= 400;
+    }).map(function(link) {
+      return {
+        url: link.url,
+        status: link.status,
+        refs: refUrls[link.url]
+      };
+    });
 
     var data = JSON.stringify(dataObj, undefined, 2);
 
