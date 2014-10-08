@@ -231,7 +231,7 @@
       return {
         url: link.url,
         status: link.status,
-        refs: refUrls[link.url]
+        refs: utils.unique(refUrls[link.url])
       };
     });
 
